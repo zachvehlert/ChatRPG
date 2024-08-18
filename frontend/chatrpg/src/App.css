@@ -1,0 +1,147 @@
+@font-face {
+    font-family: 'MyFont';
+    src: url('assets/PixelOperator.ttf');
+    font-weight: normal;
+    font-style: normal;
+}
+
+html{
+    font-family: 'MyFont';
+    font-size: 1.5rem;
+    color: white
+}
+
+body{
+    margin: 0;
+}
+
+.game {
+    height: 100vh;
+    width: 100vw;
+    background-color: #262527;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.chat-box {
+    background-color: #262527;
+    flex-grow: 1;
+    margin-top: 10px;
+    margin-left: 20px;
+    margin-bottom: 20px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.status {
+    background-color: #262527;
+    width: 20%;
+    flex-shrink: 0;
+    margin-top: 20px;
+    margin-right: 20px;
+    margin-bottom: 20px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.scroll-container {
+    overflow-y: scroll;
+    flex-grow: 1;
+    background-color: #443e37;
+    margin: 10px;
+}
+
+.scroll-container *{
+    margin: 20px;
+}
+
+.input-container {
+    background-color: #443e37;
+    margin-left: 10px;
+    margin-right: 10px;
+
+    display: flex;
+    align-items: center;
+}
+
+.input-container *{
+    margin: 10px;
+}
+
+#player-input {
+    all: unset;
+    
+    margin: 10px;
+    flex-grow: 1;
+}
+
+.health-container {
+    background-color: #443e37;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.health-bar {
+    background-color: green;
+    height: 1rem;
+    margin: 10px;
+    border-radius: 1rem;
+}
+
+.inventory-container {
+    background-color: #443e37;
+    text-align: center;
+    flex-grow: 1;
+}
+
+.inventory-list {
+    text-align: left;
+}
+
+.arrow {
+    margin-right: 0;
+}
+
+h3 {
+    margin: 10px;
+}
+
+ul {
+    margin: 10px;
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 20px;
+  }
+  
+  /* Track */
+::-webkit-scrollbar-track {
+    background-color: #5c534a;
+  }
+  
+  /* Handle */
+::-webkit-scrollbar-thumb {
+    background: #7d7064;
+;
+  }
+
+.narrator {
+    color: yellow;
+}
+
+.player {
+    color: white;
+}
+
+.dice-prompt {
+    color: lightgreen
+}
+
+.dice-roll {
+    color: lightseagreen
+}
