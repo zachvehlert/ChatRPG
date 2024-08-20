@@ -1,4 +1,5 @@
 import "./App.css";
+import { useState } from "react";
 
 const data = {
   frontend_messages: [
@@ -29,35 +30,51 @@ const data = {
 };
 
 // Parent: InputContainer
-function DiceButton({dice_roll}) {
+function DiceButton({ dice_roll }) {
   return <button disabled={!dice_roll}>Roll Dice</button>;
 }
 
 // Parent: InputContainer
-function PlayerInput({dice_roll}) {
-  return <input type="text" id="player-input" disabled={dice_roll}/>;
+function PlayerInput({ dice_roll }) {
+  const [playerInput, setPlayerInput] = useState("");
+  
+  return (
+    <input
+      type="text"
+      id="player-input"
+      onChange={(e) => setPlayerInput(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          console.log(playerInput);
+          setPlayerInput("");
+        }
+      }}
+      value={playerInput}
+      disabled={dice_roll}
+    />
+  );
 }
 
 // Parent: ChatBox
-function InputContainer( {dice_roll} ) {
+function InputContainer({ dice_roll }) {
   return (
-    <div class="input-container">
-      <p class="arrow">--</p>
-      <PlayerInput dice_roll={dice_roll}/>
-      <DiceButton dice_roll={dice_roll}/>
+    <div className="input-container">
+      <p className="arrow">--</p>
+      <PlayerInput dice_roll={dice_roll} />
+      <DiceButton dice_roll={dice_roll} />
     </div>
   );
 }
 
 // Parent: ScrollContainer
 function Message({ message }) {
-  return <p class={message.type}>{message.message}</p>;
+  return <p className={message.type}>{message.message}</p>;
 }
 
 // Parent: ChatBox
 function ScrollContainer({ messages }) {
   return (
-    <div class="scroll-container">
+    <div className="scroll-container">
       {messages.map((message, index) => (
         <Message key={index} message={message} />
       ))}
@@ -68,9 +85,9 @@ function ScrollContainer({ messages }) {
 // Parent: Game
 function ChatBox({ messages, dice_roll }) {
   return (
-    <div class="chat-box">
+    <div className="chat-box">
       <ScrollContainer messages={messages} />
-      <InputContainer dice_roll={dice_roll}/>
+      <InputContainer dice_roll={dice_roll} />
     </div>
   );
 }
@@ -78,7 +95,7 @@ function ChatBox({ messages, dice_roll }) {
 // Parent: HealthContainer
 function HealthBar({ player_health }) {
   return (
-    <div class="health-bar">
+    <div className="health-bar">
       <p>{player_health}</p>
     </div>
   );
@@ -87,7 +104,7 @@ function HealthBar({ player_health }) {
 // Parent: Status
 function HealthContainer({ player_health }) {
   return (
-    <div class="health-container">
+    <div className="health-container">
       <h3>Player Health</h3>
       <HealthBar player_health={player_health} />
     </div>
@@ -97,9 +114,9 @@ function HealthContainer({ player_health }) {
 // Parent: Status
 function InventoryContainer({ usable_items }) {
   return (
-    <div class="inventory-container">
+    <div className="inventory-container">
       <h3>Inventory</h3>
-      <ul class="inventory-list">
+      <ul className="inventory-list">
         {usable_items.map((item, index) => (
           <li key={index}>{item}</li>
         ))}
@@ -111,9 +128,9 @@ function InventoryContainer({ usable_items }) {
 // Parent: Game
 function Status({ game_state }) {
   return (
-    <div class="status">
+    <div className="status">
       <HealthContainer player_health={game_state.player_health} />
-      <InventoryContainer usable_items={game_state.usable_items}/>
+      <InventoryContainer usable_items={game_state.usable_items} />
     </div>
   );
 }
@@ -121,7 +138,7 @@ function Status({ game_state }) {
 // Parent: App
 function Game({ data }) {
   return (
-    <div class="game">
+    <div className="game">
       <ChatBox messages={data.frontend_messages} dice_roll={data.dice_roll} />
       <Status game_state={data.game_state} />
     </div>
