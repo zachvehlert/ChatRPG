@@ -1,99 +1,149 @@
 import "./App.css";
-import { useState } from "react";
+import { create } from "zustand";
 
-const data = {
-  frontend_messages: [
-    {
-      message: "Welcome, Callum The Brave, to this enchanted journey....",
-      type: "narrator",
+const useStore = create((set) => ({
+  data: {
+    frontend_messages: [
+      {
+        message: "Welcome, Callum The Brave, to this enchanted journey...",
+        type: "narrator",
+      },
+      { message: "I look around for a door to the backroom", type: "player" },
+      {
+        message:
+          "You see the door to the backroom in a shadowy corner, the lamplight...",
+        type: "narrator",
+      },
+      {
+        message:
+          "I try to sneak into the door to the backroom without anyone seeing",
+        type: "player",
+      },
+      { message: "Roll dice for: Stealth", type: "dice-prompt" },
+      { message: "20", type: "dice-roll" },
+    ],
+    dice_roll: false,
+    game_state: {
+      usable_items: ["Sword", "Ale", "Pointy Hat"],
+      player_health: 100,
+      player_gold: 25,
     },
-    { message: "I look around for a door to the backroom", type: "player" },
-    {
-      message:
-        "You see the door to the backroom in a shadowy corner, the lamplight...",
-      type: "narrator",
-    },
-    {
-      message:
-        "I try to sneak into the door to the backroom without anyone seeing",
-      type: "player",
-    },
-    { message: "Roll dice for: Stealth", type: "dice-prompt" },
-    { message: "20", type: "dice-roll" },
-  ],
-  dice_roll: false,
-  game_state: {
-    usable_items: ["Sword", "Ale", "Pointy Hat"],
-    player_health: 100,
-    player_gold: 25,
   },
-};
 
-// Parent: InputContainer
-function DiceButton({ dice_roll }) {
-  return <button disabled={!dice_roll}>Roll Dice</button>;
+  addMessage: (message, type) => {
+    set((state) => {
+      const newMessage = { message, type };
+      return {
+        data: {
+          ...state.data,
+          frontend_messages: [...state.data.frontend_messages, newMessage],
+        },
+      };
+    });
+  },
+
+  updateHealth: (healthChange) => {
+    set((state) => {
+      return {
+        data: {
+          ...state.data,
+          game_state: {
+            ...state.data.game_state,
+            player_health: state.data.game_state.player_health + healthChange,
+          },
+        },
+      };
+    });
+  },
+
+  updateGold: (goldChange) => {
+    set((state) => {
+      return {
+        data: {
+          ...state.data,
+          game_state: {
+            ...state.data.game_state,
+            player_gold: state.data.game_state.player_gold + goldChange,
+          },
+        },
+      };
+    });
+  },
+
+  updateInventory: (current_item_array) => {
+    set((state) => {
+      return {
+        data: {
+          ...state.data,
+          game_state: {
+            ...state.data.game_state,
+            usable_items: current_item_array,
+          },
+        },
+      };
+    });
+  },
+}));
+
+function DiceButton() {
+  return <button>Roll Dice</button>;
 }
 
-// Parent: InputContainer
-function PlayerInput({ dice_roll }) {
-  const [playerInput, setPlayerInput] = useState("");
-  
+function PlayerInput() {
+  const addMessage = useStore((state) => state.addMessage);
   return (
     <input
       type="text"
       id="player-input"
-      onChange={(e) => setPlayerInput(e.target.value)}
       onKeyDown={(e) => {
         if (e.key === "Enter") {
-          console.log(playerInput);
-          setPlayerInput("");
+          addMessage(e.target.value, "player");
+          e.target.value = "";
+          addMessage("This is the DM Response", "narrator");
         }
       }}
-      value={playerInput}
-      disabled={dice_roll}
     />
   );
 }
 
-// Parent: ChatBox
-function InputContainer({ dice_roll }) {
+function InputContainer() {
   return (
     <div className="input-container">
       <p className="arrow">--</p>
-      <PlayerInput dice_roll={dice_roll} />
-      <DiceButton dice_roll={dice_roll} />
+      <PlayerInput />
+      <DiceButton />
     </div>
   );
 }
 
-// Parent: ScrollContainer
-function Message({ message }) {
-  return <p className={message.type}>{message.message}</p>;
+function Message(message) {
+  return <p className={message.message.type}>{message.message.message}</p>;
 }
 
-// Parent: ChatBox
-function ScrollContainer({ messages }) {
+function ScrollContainer() {
+  const messages = useStore((state) => state.data.frontend_messages);
   return (
     <div className="scroll-container">
-      {messages.map((message, index) => (
-        <Message key={index} message={message} />
+      {messages.map((messageObj, index) => (
+        <Message key={index} message={messageObj} />
       ))}
     </div>
   );
 }
 
-// Parent: Game
-function ChatBox({ messages, dice_roll }) {
+function ChatBox() {
   return (
     <div className="chat-box">
-      <ScrollContainer messages={messages} />
-      <InputContainer dice_roll={dice_roll} />
+      <ScrollContainer />
+      <InputContainer />
     </div>
   );
 }
 
-// Parent: HealthContainer
-function HealthBar({ player_health }) {
+function HealthBar() {
+  const player_health = useStore(
+    (state) => state.data.game_state.player_health
+  );
   return (
     <div className="health-bar">
       <p>{player_health}</p>
@@ -101,18 +151,17 @@ function HealthBar({ player_health }) {
   );
 }
 
-// Parent: Status
-function HealthContainer({ player_health }) {
+function HealthContainer() {
   return (
     <div className="health-container">
       <h3>Player Health</h3>
-      <HealthBar player_health={player_health} />
+      <HealthBar />
     </div>
   );
 }
 
-// Parent: Status
-function InventoryContainer({ usable_items }) {
+function InventoryContainer() {
+  const usable_items = useStore((state) => state.data.game_state.usable_items);
   return (
     <div className="inventory-container">
       <h3>Inventory</h3>
@@ -125,28 +174,26 @@ function InventoryContainer({ usable_items }) {
   );
 }
 
-// Parent: Game
-function Status({ game_state }) {
+function Status() {
   return (
     <div className="status">
-      <HealthContainer player_health={game_state.player_health} />
-      <InventoryContainer usable_items={game_state.usable_items} />
+      <HealthContainer />
+      <InventoryContainer />
     </div>
   );
 }
 
-// Parent: App
-function Game({ data }) {
+function Game() {
   return (
     <div className="game">
-      <ChatBox messages={data.frontend_messages} dice_roll={data.dice_roll} />
-      <Status game_state={data.game_state} />
+      <ChatBox />
+      <Status />
     </div>
   );
 }
 
 function App() {
-  return <Game data={data} />;
+  return <Game />;
 }
 
 export default App;
