@@ -62,25 +62,34 @@ const useStore = create((set) => ({
   },
 }));
 
-function DiceButton() {
-  return <button>Roll Dice</button>;
-}
-
 function PlayerInput() {
   const addMessage = useStore((state) => state.addMessage);
+
   return (
     <input
       type="text"
       id="player-input"
       onKeyDown={(e) => {
         if (e.key === "Enter") {
+          // Add the player message to the chat
           addMessage(e.target.value, "player");
           e.target.value = "";
+
+          // TODO: Call the backend and get the response. This should return a response object
           addMessage("This is the DM Response", "narrator");
+
+          // TODO: if the response is a dice roll, enable the dice button and add in the dice roll message
+          // This should be something like: { message: "Roll dice for: Stealth", type: "dice-prompt" }
+
+          // TODO: Update the player health, gold, and inventory based on the response
         }
       }}
     />
   );
+}
+
+function DiceButton() {
+  return <button>Roll Dice</button>;
 }
 
 function InputContainer() {
@@ -118,9 +127,7 @@ function ChatBox() {
 }
 
 function HealthBar() {
-  const player_health = useStore(
-    (state) => state.player_health
-  );
+  const player_health = useStore((state) => state.player_health);
   return (
     <div className="health-bar">
       <p>{player_health}</p>
