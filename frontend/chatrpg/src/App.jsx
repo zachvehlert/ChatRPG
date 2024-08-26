@@ -2,42 +2,37 @@ import "./App.css";
 import { create } from "zustand";
 
 const useStore = create((set) => ({
-  data: {
-    frontend_messages: [
-      {
-        message: "Welcome, Callum The Brave, to this enchanted journey...",
-        type: "narrator",
-      },
-      { message: "I look around for a door to the backroom", type: "player" },
-      {
-        message:
-          "You see the door to the backroom in a shadowy corner, the lamplight...",
-        type: "narrator",
-      },
-      {
-        message:
-          "I try to sneak into the door to the backroom without anyone seeing",
-        type: "player",
-      },
-      { message: "Roll dice for: Stealth", type: "dice-prompt" },
-      { message: "20", type: "dice-roll" },
-    ],
-    dice_roll: false,
-    game_state: {
-      usable_items: ["Sword", "Ale", "Pointy Hat"],
-      player_health: 100,
-      player_gold: 25,
+  // State variables
+  frontend_messages: [
+    {
+      message: "Welcome, Callum The Brave, to this enchanted journey...",
+      type: "narrator",
     },
-  },
+    { message: "I look around for a door to the backroom", type: "player" },
+    {
+      message:
+        "You see the door to the backroom in a shadowy corner, the lamplight...",
+      type: "narrator",
+    },
+    {
+      message:
+        "I try to sneak into the door to the backroom without anyone seeing",
+      type: "player",
+    },
+    { message: "Roll dice for: Stealth", type: "dice-prompt" },
+    { message: "20", type: "dice-roll" },
+  ],
+  dice_roll: false,
+  usable_items: ["Sword", "Ale", "Pointy Hat"],
+  player_health: 100,
+  player_gold: 25,
 
+  // Functions to update state
   addMessage: (message, type) => {
     set((state) => {
       const newMessage = { message, type };
       return {
-        data: {
-          ...state.data,
-          frontend_messages: [...state.data.frontend_messages, newMessage],
-        },
+        frontend_messages: [...state.frontend_messages, newMessage],
       };
     });
   },
@@ -45,13 +40,7 @@ const useStore = create((set) => ({
   updateHealth: (healthChange) => {
     set((state) => {
       return {
-        data: {
-          ...state.data,
-          game_state: {
-            ...state.data.game_state,
-            player_health: state.data.game_state.player_health + healthChange,
-          },
-        },
+        player_health: state.player_health + healthChange,
       };
     });
   },
@@ -59,13 +48,7 @@ const useStore = create((set) => ({
   updateGold: (goldChange) => {
     set((state) => {
       return {
-        data: {
-          ...state.data,
-          game_state: {
-            ...state.data.game_state,
-            player_gold: state.data.game_state.player_gold + goldChange,
-          },
-        },
+        player_gold: state.player_gold + goldChange,
       };
     });
   },
@@ -73,13 +56,7 @@ const useStore = create((set) => ({
   updateInventory: (current_item_array) => {
     set((state) => {
       return {
-        data: {
-          ...state.data,
-          game_state: {
-            ...state.data.game_state,
-            usable_items: current_item_array,
-          },
-        },
+        usable_items: current_item_array,
       };
     });
   },
@@ -121,7 +98,7 @@ function Message(message) {
 }
 
 function ScrollContainer() {
-  const messages = useStore((state) => state.data.frontend_messages);
+  const messages = useStore((state) => state.frontend_messages);
   return (
     <div className="scroll-container">
       {messages.map((messageObj, index) => (
@@ -142,7 +119,7 @@ function ChatBox() {
 
 function HealthBar() {
   const player_health = useStore(
-    (state) => state.data.game_state.player_health
+    (state) => state.player_health
   );
   return (
     <div className="health-bar">
@@ -161,7 +138,7 @@ function HealthContainer() {
 }
 
 function InventoryContainer() {
-  const usable_items = useStore((state) => state.data.game_state.usable_items);
+  const usable_items = useStore((state) => state.usable_items);
   return (
     <div className="inventory-container">
       <h3>Inventory</h3>
