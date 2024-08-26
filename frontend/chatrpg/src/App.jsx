@@ -1,5 +1,6 @@
 import "./App.css";
 import { create } from "zustand";
+import axios from "axios";
 
 const useStore = create((set) => ({
   // State variables
@@ -63,8 +64,10 @@ const useStore = create((set) => ({
 }));
 
 async function requestBackend(requestData, endpoint) {
-  // const route = `http://127.0.0.1:5000/${endpoint}`;
-  // const response = await axios.post(route, requestData);
+   const route = `http://127.0.0.1:5000/${endpoint}`;
+   const realResponse = await axios.post(route, requestData);
+
+   console.log(realResponse)
 
   // Dummy response
   const response = {
@@ -99,7 +102,7 @@ function PlayerInput() {
 
           // TODO: Call the backend and get the response. This should return a response object
           // This function doesn't actually work yet
-          const responseData = await requestBackend('requestData', 'endpoint');
+          const responseData = await requestBackend({key: 'value'}, 'get_response');
 
           // Add the response to the chat
           addMessage(responseData.dm_response, "narrator");
