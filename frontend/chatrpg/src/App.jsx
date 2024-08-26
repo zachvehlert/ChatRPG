@@ -4,27 +4,9 @@ import axios from "axios";
 
 const useStore = create((set) => ({
   // State variables
-  frontend_messages: [
-    {
-      message: "Welcome, Callum The Brave, to this enchanted journey...",
-      type: "narrator",
-    },
-    { message: "I look around for a door to the backroom", type: "player" },
-    {
-      message:
-        "You see the door to the backroom in a shadowy corner, the lamplight...",
-      type: "narrator",
-    },
-    {
-      message:
-        "I try to sneak into the door to the backroom without anyone seeing",
-      type: "player",
-    },
-    { message: "Roll dice for: Stealth", type: "dice-prompt" },
-    { message: "20", type: "dice-roll" },
-  ],
+  frontend_messages: [],
   dice_roll: false,
-  usable_items: ["Sword", "Ale", "Pointy Hat"],
+  usable_items: [],
   player_health: 100,
   player_gold: 25,
 
@@ -64,56 +46,62 @@ const useStore = create((set) => ({
 }));
 
 async function requestBackend(requestData, endpoint) {
-   const route = `http://127.0.0.1:5000/${endpoint}`;
-   const realResponse = await axios.post(route, requestData);
-
-   console.log(realResponse)
-
-  // Dummy response
-  const response = {
-    dm_response: "You picked up a cheese wheel!",
-
-    dice_roll_required: false,
-    roll_for_skill: "none",
-
-    health_change: 10,
-    gold_change: 0,
-    usable_items: ["Sword", "Ale", "Pointy Hat", "Cheese wheel"],
-  }
-
+  const route = `http://127.0.0.1:5000/${endpoint}`;
+  const response = await axios.post(route, requestData);
+  console.log(response);
   return response;
 }
 
 function PlayerInput() {
+  // State Functions
   const addMessage = useStore((state) => state.addMessage);
   const updateHealth = useStore((state) => state.updateHealth);
   const updateGold = useStore((state) => state.updateGold);
   const updateInventory = useStore((state) => state.updateInventory);
-  
+
+  // State Variables
+  const usable_items = useStore((state) => state.usable_items);
+  const health = useStore((state) => state.player_health);
+  const gold = useStore((state) => state.player_gold);
+
   return (
     <input
       type="text"
       id="player-input"
       onKeyDown={async (e) => {
         if (e.key === "Enter") {
+          // Construct the request data
+          const requestData = {
+            requested_action: e.target.value,
+            usable_items: usable_items,
+            health: health,
+            gold: gold,
+          };
+
           // Add the player message to the chat
           addMessage(e.target.value, "player");
           e.target.value = "";
 
-          // TODO: Call the backend and get the response. This should return a response object
-          // This function doesn't actually work yet
-          const responseData = await requestBackend({key: 'value'}, 'get_response');
+          // Call the backend and get the response. This should return a response object
+          const responseData = await requestBackend(
+            requestData,
+            "get_response"
+          );
 
           // Add the response to the chat
-          addMessage(responseData.dm_response, "narrator");
+          addMessage(responseData.data.dm_response, "narrator");
 
           // Update the player health, gold, and inventory based on the response
-          updateHealth(responseData.health_change);
-          updateGold(responseData.gold_change);
-          updateInventory(responseData.usable_items);
+          updateHealth(responseData.data.health_change);
+          updateGold(responseData.data.gold_change);
+          updateInventory(responseData.data.usable_items);
 
-          // TODO: if the response is a dice roll, enable the dice button and add in the dice roll message
-          // This should be something like: { message: "Roll dice for: Stealth", type: "dice-prompt" }
+          // If the response is a dice roll, enable the dice button and add in the dice roll message
+          if (responseData.data.dice_roll_required) {
+            addMessage(`Roll dice for: ${responseData.data.roll_for_skill}`, "dice-prompt");
+            // TODO: Enable the dice button
+            // TODO: Disable the player input
+          }
         }
       }}
     />
