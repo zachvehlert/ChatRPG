@@ -62,26 +62,55 @@ const useStore = create((set) => ({
   },
 }));
 
+async function requestBackend(requestData, endpoint) {
+  // const route = `http://127.0.0.1:5000/${endpoint}`;
+  // const response = await axios.post(route, requestData);
+
+  // Dummy response
+  const response = {
+    dm_response: "You picked up a cheese wheel!",
+
+    dice_roll_required: false,
+    roll_for_skill: "none",
+
+    health_change: 10,
+    gold_change: 0,
+    usable_items: ["Sword", "Ale", "Pointy Hat", "Cheese wheel"],
+  }
+
+  return response;
+}
+
 function PlayerInput() {
   const addMessage = useStore((state) => state.addMessage);
-
+  const updateHealth = useStore((state) => state.updateHealth);
+  const updateGold = useStore((state) => state.updateGold);
+  const updateInventory = useStore((state) => state.updateInventory);
+  
   return (
     <input
       type="text"
       id="player-input"
-      onKeyDown={(e) => {
+      onKeyDown={async (e) => {
         if (e.key === "Enter") {
           // Add the player message to the chat
           addMessage(e.target.value, "player");
           e.target.value = "";
 
           // TODO: Call the backend and get the response. This should return a response object
-          addMessage("This is the DM Response", "narrator");
+          // This function doesn't actually work yet
+          const responseData = await requestBackend('requestData', 'endpoint');
+
+          // Add the response to the chat
+          addMessage(responseData.dm_response, "narrator");
+
+          // Update the player health, gold, and inventory based on the response
+          updateHealth(responseData.health_change);
+          updateGold(responseData.gold_change);
+          updateInventory(responseData.usable_items);
 
           // TODO: if the response is a dice roll, enable the dice button and add in the dice roll message
           // This should be something like: { message: "Roll dice for: Stealth", type: "dice-prompt" }
-
-          // TODO: Update the player health, gold, and inventory based on the response
         }
       }}
     />
