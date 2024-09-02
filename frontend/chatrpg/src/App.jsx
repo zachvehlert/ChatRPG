@@ -5,10 +5,13 @@ import axios from "axios";
 const useStore = create((set) => ({
   // State variables
   frontend_messages: [],
-  dice_roll: false,
   usable_items: [],
   player_health: 100,
   player_gold: 25,
+
+  dice_roll: false,
+  dice_overlay: false,
+  dice_number: 20,
 
   // Functions to update state
   addMessage: (message, type) => {
@@ -40,6 +43,22 @@ const useStore = create((set) => ({
     set((state) => {
       return {
         usable_items: current_item_array,
+      };
+    });
+  },
+
+  updateDiceOverlay: () => {
+    set((state) => {
+      return {
+        dice_overlay: !state.dice_overlay,
+      };
+    });
+  },
+
+  updateDiceNumber: () => {
+    set((state) => {
+      return {
+        dice_number: Math.floor(Math.random() * 20) + 1,
       };
     });
   },
@@ -98,7 +117,10 @@ function PlayerInput() {
 
           // If the response is a dice roll, enable the dice button and add in the dice roll message
           if (responseData.data.dice_roll_required) {
-            addMessage(`Roll dice for: ${responseData.data.roll_for_skill}`, "dice-prompt");
+            addMessage(
+              `Roll dice for: ${responseData.data.roll_for_skill}`,
+              "dice-prompt"
+            );
             // TODO: Enable the dice button
             // TODO: Disable the player input
           }
@@ -109,7 +131,30 @@ function PlayerInput() {
 }
 
 function DiceButton() {
-  return <button>Roll Dice</button>;
+  const updateDiceOverlay = useStore((state) => state.updateDiceOverlay);
+  const updateDiceNumber = useStore((state) => state.updateDiceNumber);
+  const addMessage = useStore((state) => state.addMessage);
+
+  function rollDice() {
+    // Show the dice overlay immediately
+    updateDiceOverlay();
+
+    // Change the dice number every 100ms for 2 seconds
+    const intervalId = setInterval(updateDiceNumber, 50);
+
+    // After 2 seconds, stop updating the dice number. After 1 second, hide the dice overlay
+    setTimeout(() => {
+      clearInterval(intervalId);
+      setTimeout(() => {
+        updateDiceOverlay();
+        const currentDiceNumber = useStore.getState().dice_number;
+        addMessage(`Dice roll: ${currentDiceNumber}`, "dice-roll");
+        // TODO: Send the dice number to the backend here
+      }, 1000);
+    }, 2000);
+  }
+
+  return <button onClick={rollDice}>Roll Dice</button>;
 }
 
 function InputContainer() {
@@ -187,13 +232,36 @@ function Status() {
   );
 }
 
-function Game() {
+function DiceOverlay() {
+  const dice_number = useStore((state) => state.dice_number);
   return (
-    <div className="game">
-      <ChatBox />
-      <Status />
+    <div className="overlay-bg">
+      <div className="overlay">
+        <p className="dice-number">{dice_number}</p>
+      </div>
     </div>
   );
+}
+
+function Game() {
+  // Conditionally render the dice overaly based on the state
+  const dice_overlay = useStore((state) => state.dice_overlay);
+  if (dice_overlay) {
+    return (
+      <div className="game">
+        <DiceOverlay />
+        <ChatBox />
+        <Status />
+      </div>
+    );
+  } else {
+    return (
+      <div className="game">
+        <ChatBox />
+        <Status />
+      </div>
+    );
+  }
 }
 
 function App() {
