@@ -1,0 +1,46 @@
+#root {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  
+    height: 100vh;
+  
+    background-color: #262527;
+  }
+  
+  .homepage-menu-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  
+    width: 40%;
+  
+    background-color: #443e37;
+    color: white;
+  }
+  
+  h1 {
+    font-size: 3em;
+    margin: 20px;
+  }
+  
+  .homepage-button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .homepage-link-btn {
+    all: unset;
+    margin: 20px;
+    padding: 10px;
+    padding-left: 50px;
+    padding-right: 50px;
+    background-color: brown;
+  }
+  
+  .homepage-link-btn:hover {
+    cursor: pointer;
+    background-color: rgb(100, 26, 26);
+  }
+  
