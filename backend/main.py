@@ -19,7 +19,7 @@ cors = CORS(app)
 
 @app.route('/')
 def index():
-    return "Current routes: /get_response"
+    return "Current routes: /get_response, /create_game"
 
 @app.route('/get_response', methods=['GET', 'POST'])
 def get_response():
@@ -39,6 +39,12 @@ def get_response():
     # Parse the response, turn it to json, return it
     response = completion.choices[0].message.parsed
     return response.model_dump()
+
+@app.route('/create_game', methods=['GET', 'POST'])
+def create_game():
+    request_data = request.get_json()
+    print(request_data)
+    return "hello from python!" 
 
 if __name__ == '__main__':
     app.run(debug=True)
