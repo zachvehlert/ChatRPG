@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import App from './App.jsx'
+import App from './pages/App/App.jsx'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import NewGame from './pages/NewGame/NewGame.jsx'
 import GameCreator from './pages/GameCreator/GameCreator.jsx'
