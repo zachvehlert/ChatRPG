@@ -1,6 +1,7 @@
 import "./App.css";
 import { create } from "zustand";
 import axios from "axios";
+import { useLocation } from "react-router-dom";
 
 const useStore = create((set) => ({
   // State variables
@@ -83,14 +84,18 @@ function PlayerInput() {
   const health = useStore((state) => state.player_health);
   const gold = useStore((state) => state.player_gold);
 
+  const gameId = useLocation().state.gameId.game_id;
+
   return (
     <input
       type="text"
       id="player-input"
+      placeholder={`${gameId}`}
       onKeyDown={async (e) => {
         if (e.key === "Enter") {
           // Construct the request data
           const requestData = {
+            game_id: gameId,
             requested_action: e.target.value,
             usable_items: usable_items,
             health: health,

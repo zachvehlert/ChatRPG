@@ -1,5 +1,6 @@
 import "./GameCreator.css";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 async function requestBackend(requestData, endpoint) {
   const route = `http://127.0.0.1:5000/${endpoint}`;
@@ -8,32 +9,36 @@ async function requestBackend(requestData, endpoint) {
   return response;
 }
 
+async function handleClick(e, navigate) {
+  e.preventDefault();
+
+  const formObject = {
+    playerName: e.target.playerName.value,
+    playerBackstory: e.target.playerBackstory.value,
+    worldLore: e.target.worldLore.value,
+    currentLocation: e.target.currentLocation.value,
+    starterItems: [
+      e.target.starterItem1.value,
+      e.target.starterItem2.value,
+      e.target.starterItem3.value,
+    ],
+  };
+
+  // Return a response with the new game id
+  const response = await requestBackend(formObject, "create_game");
+
+  // Go to the game page with the new game id
+  navigate('/game', { state: { gameId: response.data } });
+}
+
 function GameCreator() {
+  const navigate = useNavigate();
+
   return (
     <div className="game-creator">
       <h1>New Game</h1>
       <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-
-          const formObject = {
-            playerName: e.target.playerName.value,
-            playerBackstory: e.target.playerBackstory.value,
-            worldLore: e.target.worldLore.value,
-            currentLocation: e.target.currentLocation.value,
-            starterItems: [
-              e.target.starterItem1.value,
-              e.target.starterItem2.value,
-              e.target.starterItem3.value,
-            ],
-          };
-
-          const response = await requestBackend(formObject, "create_game");
-          console.log(response);
-
-          // TODO: Send formObject to the server
-          // I want to return the game id from the server and send it to the next page
-        }}
+        onSubmit={(e) => {handleClick(e, navigate)}}
       >
         <input
           type="text"
