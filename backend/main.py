@@ -5,6 +5,13 @@ from openai import OpenAI
 from dotenv import load_dotenv
 from dm import system_content
 from models import DMresponse
+from pymongo import MongoClient
+from bson.objectid import ObjectId
+
+# Connect to the MongoDB database
+client = MongoClient('mongodb://localhost:27017/')
+db = client['game']
+collection = db['saved_games']
 
 # Load env variables
 load_dotenv()
@@ -44,7 +51,28 @@ def get_response():
 def create_game():
     request_data = request.get_json()
     print(request_data)
-    return "hello from python!" 
+
+    # Construct the first message from the request data
+    first_message = f'My name is: {request_data["playerName"]}. My backstory is: {request_data["playerBackstory"]}. The world lore is: {request_data["worldLore"]} My current location is: {request_data["currentLocation"]}.'
+    
+    # Construct the new game data
+    new_game_data = { 
+        'first_message' : first_message,
+        'frontend_messages': [], # Array of messages (strings) to be rendered on the frontend
+        'backend_messages': [system_content], # Array of message objects to be processed by ChatGPT
+        'current_game_state': {
+            'usable_items': request_data['starterItems'],
+            'player_health': 100,
+            'player_gold': 25
+        }
+    }
+
+    # Insert the new game data into the database
+    insert_result = collection.insert_one(new_game_data)
+    
+    # Get the Id of the inserted game and return it
+    id = insert_result.inserted_id
+    return {"game_id": str(id)}
 
 if __name__ == '__main__':
     app.run(debug=True)
