@@ -84,6 +84,7 @@ function PlayerInput() {
   const health = useStore((state) => state.player_health);
   const gold = useStore((state) => state.player_gold);
 
+  // Get the game id from the previous page
   const gameId = useLocation().state.gameId.game_id;
 
   return (
